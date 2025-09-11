@@ -44,3 +44,24 @@ export function load(): Promise<AppState> {
 export function save(state: AppState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
+
+export const getColorClass = (color: string) => {
+  switch (color) {
+    case "blue":
+      return "bg-blue-500 text-white";
+    case "green":
+      return "bg-green-500 text-white";
+    case "yellow":
+      return "bg-yellow-500 text-black";
+    case "red":
+      return "bg-red-500 text-white";
+    case "purple":
+      return "bg-purple-500 text-white";
+    case "orange":
+      return "bg-orange-500 text-white";
+    case "pink":
+      return "bg-pink-500 text-white";
+    default:
+      return "bg-secondary text-secondary-foreground";
+  }
+};

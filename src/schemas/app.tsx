@@ -6,6 +6,7 @@ export const StateSchema = z.object({
   settings: SettingsSchema,
   items: z.array(WordSchema).default([]),
   page: z.number().min(1).default(1),
+  hideMeanings: z.boolean().default(true),
 });
 
 export type AppState = z.infer<typeof StateSchema>;
@@ -16,4 +17,5 @@ export const DEFAULT_STATE: AppState = {
   },
   items: [],
   page: 1,
+  hideMeanings: true,
 };

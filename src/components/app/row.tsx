@@ -1,31 +1,10 @@
 import { Edit2, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { z } from "zod";
+import { getColorClass } from "@/lib/utils";
 import type { WordSchema } from "@/schemas/word";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-
-const getColorClass = (color: string) => {
-  switch (color) {
-    case "blue":
-      return "bg-blue-500 text-white";
-    case "green":
-      return "bg-green-500 text-white";
-    case "yellow":
-      return "bg-yellow-500 text-black";
-    case "red":
-      return "bg-red-500 text-white";
-    case "purple":
-      return "bg-purple-500 text-white";
-    case "orange":
-      return "bg-orange-500 text-white";
-    case "pink":
-      return "bg-pink-500 text-white";
-    default:
-      return "bg-secondary text-secondary-foreground";
-  }
-};
 
 type Props = {
   item: z.infer<typeof WordSchema>;

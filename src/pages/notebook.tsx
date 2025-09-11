@@ -1,12 +1,14 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import type { z } from "zod";
 import { BottomBar } from "@/components/app/bottom-bar";
 import { Header } from "@/components/app/header";
+import { QuizModal } from "@/components/app/quiz-modal";
 import { Row } from "@/components/app/row";
 import { SettingsModal } from "@/components/app/settings-modal";
 import { WordModal } from "@/components/app/word-modal";
 import { useWordbook } from "@/hooks/word-book";
-import { DEFAULT_STATE, StateSchema } from "@/schemas/app";
+import { DEFAULT_STATE } from "@/schemas/app";
 import type { SettingsSchema } from "@/schemas/settings";
 import type { WordSchema } from "@/schemas/word";
 
@@ -18,11 +20,13 @@ export function Notebook() {
   const state = data ?? DEFAULT_STATE;
   const [modalOpen, setModalOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingData, setEditingData] = useState<
     Partial<WordData> | undefined
   >();
+  const [quizWord, setQuizWord] = useState<WordData | null>(null);
 
   const perPage = state.settings.perPage;
   const pageCount = Math.max(1, Math.ceil(state.items.length / perPage));
@@ -93,6 +97,18 @@ export function Notebook() {
     }));
   };
 
+  const handleRandomQuiz = () => {
+    if (state.items.length === 0) {
+      toast("Add some words first to start a quiz!");
+      return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * state.items.length);
+    const randomWord = state.items[randomIndex];
+    setQuizWord(randomWord);
+    setQuizOpen(true);
+  };
+
   if (isLoading) {
     return <div className="p-6">Loading…</div>;
   }
@@ -102,10 +118,17 @@ export function Notebook() {
       <Header />
 
       <div className="min-h-dvh overflow-hidden bg-background p-4 shadow">
-        <div className="mt-4 space-y-2">
+        <div className="mt-2 space-y-2">
           {slice.length === 0 && (
-            <div className="py-8 text-center text-muted-foreground text-sm">
-              No rows here yet.
+            <div className="space-y-4 py-16 text-center">
+              <div className="mb-4 text-6xl">📚</div>
+              <h2 className="font-bold text-2xl text-foreground">
+                Your Word Book is Empty
+              </h2>
+              <p className="mx-auto max-w-md text-lg text-muted-foreground">
+                Start building your vocabulary by adding new words or load some
+                sample vocabulary to get started.
+              </p>
             </div>
           )}
           {slice.map((item, idx) => {
@@ -126,10 +149,12 @@ export function Notebook() {
         isHidden={state.hideMeanings}
         onAddWord={handleAddWord}
         onOpenSettings={() => setSettingsOpen(true)}
+        onRandomQuiz={handleRandomQuiz}
         onToggleVisibility={handleToggleVisibility}
         page={page}
         pageCount={pageCount}
         setPage={(p: number) => update((s) => ({ ...s, page: p }))}
+        showQuiz={(data?.items?.length ?? 0) > 1}
       />
 
       <WordModal
@@ -147,6 +172,8 @@ export function Notebook() {
         onSave={handleSaveSettings}
         open={settingsOpen}
       />
+
+      <QuizModal onOpenChange={setQuizOpen} open={quizOpen} word={quizWord} />
     </div>
   );
 }
