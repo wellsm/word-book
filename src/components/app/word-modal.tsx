@@ -14,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { WordSchema } from "@/schemas/word";
+import type { WordRecord } from "@/lib/db";
 
 const WordFormSchema = z.object({
   term: z.string().min(1, "Word is required"),
@@ -23,7 +23,7 @@ const WordFormSchema = z.object({
 });
 
 type WordFormData = z.infer<typeof WordFormSchema>;
-type WordData = z.infer<typeof WordSchema>;
+type WordData = WordRecord;
 
 const colorOptions = [
   {

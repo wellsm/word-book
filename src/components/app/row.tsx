@@ -1,19 +1,20 @@
 import { Edit2, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { z } from "zod";
+import type { WordRecord } from "@/lib/db";
 import { getColorClass } from "@/lib/utils";
-import type { WordSchema } from "@/schemas/word";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import { useUpdateWord } from "@/hooks/use-words";
 
 type Props = {
-  item: z.infer<typeof WordSchema>;
+  item: WordRecord;
   onEdit: () => void;
   hideMeanings: boolean;
 };
 
 export function Row({ item, onEdit, hideMeanings }: Props) {
   const [hidden, setHidden] = useState<boolean>(hideMeanings);
+  const { mutate: updateWord } = useUpdateWord();
 
   const handleClick = () => {
     setHidden(!hidden);
@@ -26,7 +27,7 @@ export function Row({ item, onEdit, hideMeanings }: Props) {
   return (
     <div className="w-full">
       <Card
-        className={`relative cursor-pointer select-none overflow-hidden border-2 bg-gradient-to-br from-card via-card/95 to-muted/30 p-0 pt-4 ${
+        className={`relative cursor-pointer select-none overflow-hidden rounded-none border-2 bg-gradient-to-br from-card via-card/95 to-muted/30 p-0 pt-4 ${
           hidden && "pb-4"
         }`}
         onClick={handleClick}
@@ -35,7 +36,7 @@ export function Row({ item, onEdit, hideMeanings }: Props) {
           <div className="flex h-full flex-col items-center">
             {/* Word Section - Always visible, larger and centered */}
             <div className="flex flex-1 items-center justify-center">
-              <h1 className="text-center font-black text-2xl text-foreground leading-tight tracking-wide drop-shadow-sm">
+              <h1 className="text-center font-black text-2xl text-foreground lowercase leading-tight tracking-wide drop-shadow-sm">
                 {item.term}
               </h1>
               <div

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,9 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { WordSchema } from "@/schemas/word";
+import type { WordRecord } from "@/lib/db";
 
-type WordData = z.infer<typeof WordSchema>;
+type WordData = WordRecord;
 
 type Props = {
   open: boolean;
