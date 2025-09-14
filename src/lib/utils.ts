@@ -45,6 +45,22 @@ export function save(state: AppState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+export function download(
+  filename: string,
+  data: string,
+  options: BlobPropertyBag = { type: "application/json" }
+) {
+  const blob = new Blob([data], options);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
 export const getColorClass = (color: string) => {
   switch (color) {
     case "blue":

@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
+import { DEFAULT_SETTINGS, type SettingsRecord } from "@/schemas/settings";
 import { DEFAULT_WORDS } from "../seeders/words";
 
 export type WordRecord = {
@@ -11,30 +12,35 @@ export type WordRecord = {
   updatedAt: Date;
 };
 
-export const DEFAULT_PER_PAGE = 10;
-
-export type SettingsRecord = {
-  id?: number;
-  perPage: number;
-  updatedAt: Date;
-};
-
 const db = new Dexie("WordBookDB") as Dexie & {
   words: EntityTable<WordRecord, "id">;
   settings: EntityTable<SettingsRecord, "id">;
 };
 
-// Define schemas
 db.version(1).stores({
   words: "++id, term, createdAt",
   settings: "++id",
 });
 
+db.version(2)
+  .stores({
+    words: "++id, term, createdAt",
+    settings: "++id",
+  })
+  .upgrade((tx) => {
+    return tx
+      .table("settings")
+      .toCollection()
+      .modify((settings) => {
+        settings.layout = DEFAULT_SETTINGS.layout.toString();
+      });
+  });
+
 db.on("populate", async () => {
-  // Add default settings
   await db.settings.bulkAdd([
     {
-      perPage: DEFAULT_PER_PAGE,
+      perPage: DEFAULT_SETTINGS.perPage,
+      layout: DEFAULT_SETTINGS.layout,
       updatedAt: new Date(),
     },
   ]);

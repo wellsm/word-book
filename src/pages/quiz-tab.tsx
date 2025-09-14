@@ -1,69 +1,32 @@
-import { Button } from "@/components/ui/button";
-import type { DEFAULT_STATE } from "@/schemas/app";
+import { useState } from "react";
+import { QuizPending } from "@/components/app/quiz-pending";
+import { QuizStarted } from "@/components/app/quiz-started";
+import { useWords } from "@/hooks/use-words";
 
-type QuizTabProps = {
-  state: typeof DEFAULT_STATE;
-  update: (updater: (s: typeof DEFAULT_STATE) => typeof DEFAULT_STATE) => void;
-  onSetActiveTab: (tab: string) => void;
-};
+type QuizState = "initial" | "active";
 
-export function QuizTab({ state, update, onSetActiveTab }: QuizTabProps) {
-  const hasEnoughWordsForQuiz = state.items.length >= 2;
+export function QuizTab() {
+  const { data: words = [], isLoading } = useWords();
 
-  return (
-    <div className="flex h-screen flex-col justify-center space-y-4 p-8 pb-48">
-      <div className="space-y-2">
-        <h2 className="font-bold text-3xl">🎯 Quiz Mode</h2>
-        <p className="text-lg text-muted-foreground">
-          Test your vocabulary knowledge
-        </p>
-      </div>
+  // Quiz state management
+  const [quizState, setQuizState] = useState<QuizState>("initial");
 
-      {!hasEnoughWordsForQuiz && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <div className="font-medium text-amber-800">
-            ⚠️ You need at least 2 words to start a quiz
-          </div>
-          <div className="mt-1 text-amber-600 text-sm">
-            Add more words to unlock quiz mode
-          </div>
-        </div>
-      )}
+  if (isLoading) {
+    return <div className="p-8">Loading...</div>;
+  }
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="text-center">
-          <div className="font-bold text-2xl text-primary">
-            {state.items.length}
-          </div>
-          <div className="text-muted-foreground text-sm">Total Words</div>
-        </div>
-        <div className="text-center">
-          <div className="font-bold text-2xl text-green-600">
-            {state.items.filter((item) => item.learned).length}
-          </div>
-          <div className="text-muted-foreground text-sm">Learned</div>
-        </div>
-      </div>
+  const hasEnoughWordsForQuiz = words.length >= 2;
 
-      <div className="space-y-4">
-        <Button className="w-full" disabled={!hasEnoughWordsForQuiz} size="lg">
-          Start Random Quiz
-        </Button>
+  // Initial quiz screen
+  if (quizState === "initial") {
+    return (
+      <QuizPending
+        hasEnoughWordsForQuiz={hasEnoughWordsForQuiz}
+        startQuiz={() => setQuizState("active")}
+        words={words}
+      />
+    );
+  }
 
-        <div className="grid grid-cols-2 gap-2">
-          <Button onClick={() => onSetActiveTab("home")} variant="outline">
-            Back to Home
-          </Button>
-          <Button
-            onClick={() =>
-              update((s) => ({ ...s, hideMeanings: !s.hideMeanings }))
-            }
-            variant="outline"
-          >
-            {state.hideMeanings ? "Show" : "Hide"} Meanings
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+  return <QuizStarted stopQuiz={() => setQuizState("initial")} words={words} />;
 }

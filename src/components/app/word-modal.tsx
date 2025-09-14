@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useAddWord, useDeleteWord, useUpdateWord } from "@/hooks/use-words";
 import type { WordRecord } from "@/lib/db";
 
 const WordFormSchema = z.object({
@@ -23,7 +24,6 @@ const WordFormSchema = z.object({
 });
 
 type WordFormData = z.infer<typeof WordFormSchema>;
-type WordData = WordRecord;
 
 const colorOptions = [
   {
@@ -43,20 +43,16 @@ const colorOptions = [
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (data: Partial<WordData>) => void;
-  onDelete?: () => void;
-  initialData?: Partial<WordData>;
+  initialData?: Partial<WordRecord>;
   mode: "add" | "edit";
 };
 
-export function WordModal({
-  open,
-  onOpenChange,
-  onSave,
-  onDelete,
-  initialData,
-  mode,
-}: Props) {
+export function WordModal({ open, onOpenChange, initialData, mode }: Props) {
+  // Use hooks directly in the modal
+  const addWordMutation = useAddWord();
+  const updateWordMutation = useUpdateWord();
+  const deleteWordMutation = useDeleteWord();
+
   const {
     register,
     handleSubmit,
@@ -86,16 +82,40 @@ export function WordModal({
     }
   }, [open, initialData, reset]);
 
-  const onSubmit = (data: WordFormData) => {
-    onSave(data);
-    onOpenChange(false);
-    reset();
+  const onSubmit = async (data: WordFormData) => {
+    try {
+      if (mode === "add") {
+        await addWordMutation.mutateAsync({
+          term: data.term,
+          meaning: data.meaning,
+          learned: false,
+          color: data.color,
+        });
+      } else if (mode === "edit" && initialData?.id) {
+        await updateWordMutation.mutateAsync({
+          id: initialData.id,
+          updates: {
+            term: data.term,
+            meaning: data.meaning,
+            color: data.color,
+          },
+        });
+      }
+      onOpenChange(false);
+      reset();
+    } catch {
+      // Error handled by mutation hooks
+    }
   };
 
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete();
-      onOpenChange(false);
+  const handleDelete = async () => {
+    if (mode === "edit" && initialData?.id) {
+      try {
+        await deleteWordMutation.mutateAsync(initialData.id);
+        onOpenChange(false);
+      } catch {
+        // Error handled by mutation hooks
+      }
     }
   };
 
@@ -164,14 +184,15 @@ export function WordModal({
           </div>
 
           <DialogFooter className="gap-2">
-            {mode === "edit" && onDelete && (
+            {mode === "edit" && (
               <Button
+                disabled={deleteWordMutation.isPending}
                 onClick={handleDelete}
                 size="sm"
                 type="button"
                 variant="destructive"
               >
-                Delete
+                {deleteWordMutation.isPending ? "Deleting..." : "Delete"}
               </Button>
             )}
             <Button
@@ -182,8 +203,21 @@ export function WordModal({
             >
               Cancel
             </Button>
-            <Button disabled={!isValid} size="sm" type="submit">
-              {mode === "add" ? "Add Word" : "Save Changes"}
+            <Button
+              disabled={
+                !isValid ||
+                addWordMutation.isPending ||
+                updateWordMutation.isPending
+              }
+              size="sm"
+              type="submit"
+            >
+              {(() => {
+                if (addWordMutation.isPending || updateWordMutation.isPending) {
+                  return "Saving...";
+                }
+                return mode === "add" ? "Add Word" : "Save Changes";
+              })()}
             </Button>
           </DialogFooter>
         </form>

@@ -5,14 +5,21 @@ import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   useDeleteDatabase,
   useSettings,
   useUpdateSettings,
 } from "@/hooks/use-settings";
 import { useExportData, useImportData } from "@/hooks/use-words";
-import type { SettingsRecord } from "@/lib/db";
-import { MAX_PER_PAGE } from "@/schemas/settings";
+import { download } from "@/lib/utils";
+import type { Layout, SettingsRecord } from "@/schemas/settings";
+import {
+  LAYOUT_LIST,
+  type LAYOUT_TWO_COLUMN,
+  LayoutOptions,
+  MAX_PER_PAGE,
+} from "@/schemas/settings";
 
 export function SettingsTab() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -36,8 +43,9 @@ export function SettingsTab() {
   // Initialize default settings if they don't exist
   useEffect(() => {
     if (!(isLoading || settings)) {
-      const defaultSettings = {
+      const defaultSettings: Omit<SettingsRecord, "id" | "updatedAt"> = {
         perPage: 10,
+        layout: LAYOUT_LIST as Layout,
       };
       updateSettings.mutate(defaultSettings);
     }
@@ -60,6 +68,15 @@ export function SettingsTab() {
     }
   };
 
+  const handleLayoutChange = (
+    layout: typeof LAYOUT_LIST | typeof LAYOUT_TWO_COLUMN
+  ) => {
+    setLocalSettings({
+      ...localSettings,
+      layout,
+    });
+  };
+
   const handleSave = () => {
     updateSettings.mutate(localSettings);
   };
@@ -69,16 +86,9 @@ export function SettingsTab() {
 
   const handleExport = async () => {
     try {
-      const result = await exportData.mutateAsync();
-      const blob = new Blob([JSON.stringify(result, null, 2)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "wordbook.json";
-      a.click();
-      URL.revokeObjectURL(url);
+      const data = await exportData.mutateAsync();
+
+      download("wordbook.json", JSON.stringify(data, null, 2));
     } catch {
       toast("Export failed. Please try again.");
     }
@@ -107,7 +117,7 @@ export function SettingsTab() {
   };
 
   return (
-    <div className="space-y-4 p-8">
+    <div className="space-y-6 p-8">
       <div className="space-y-2">
         <h2 className="font-bold text-2xl">⚙️ Settings</h2>
         <p className="text-muted-foreground">
@@ -115,7 +125,7 @@ export function SettingsTab() {
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="perPage">Words per page</Label>
           <Input
@@ -129,6 +139,26 @@ export function SettingsTab() {
             type="number"
             value={localSettings.perPage}
           />
+        </div>
+
+        <div className="space-y-3">
+          <Label>Layout</Label>
+          <RadioGroup
+            onValueChange={(value) => handleLayoutChange(value as Layout)}
+            value={localSettings.layout}
+          >
+            {LayoutOptions.map((option) => (
+              <div className="flex items-center space-x-2" key={option}>
+                <RadioGroupItem id={`layout-${option}`} value={option} />
+                <Label
+                  className="font-normal text-sm"
+                  htmlFor={`layout-${option}`}
+                >
+                  {option === LAYOUT_LIST ? "List" : "Two-Column"}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
         </div>
 
         {/* Save Button */}

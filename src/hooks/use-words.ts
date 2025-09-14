@@ -1,5 +1,7 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type SettingsRecord, type WordRecord } from "@/lib/db";
+import type { WordRecord } from "@/lib/db";
+import { db } from "@/lib/db";
+import type { SettingsRecord } from "@/schemas/settings";
 
 export function useWords() {
   const words = useLiveQuery(() => db.words.orderBy("createdAt").toArray(), []);

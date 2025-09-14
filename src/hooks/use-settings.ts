@@ -1,5 +1,6 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type SettingsRecord } from "@/lib/db";
+import { db } from "@/lib/db";
+import type { SettingsRecord } from "@/schemas/settings";
 
 export function useSettings() {
   const settings = useLiveQuery(() => db.settings.limit(1).first(), []);

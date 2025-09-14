@@ -1,128 +1,45 @@
 import { Home, Settings, Target } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Header } from "@/components/app/header";
 import { QuizModal } from "@/components/app/quiz-modal";
 import { WordModal } from "@/components/app/word-modal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useSettings, useUpdateSettings } from "@/hooks/use-settings";
-import {
-  useAddWord,
-  useDeleteWord,
-  useUpdateWord,
-  useWords,
-} from "@/hooks/use-words";
+import { useSettings } from "@/hooks/use-settings";
+import { useWords } from "@/hooks/use-words";
 import type { WordRecord } from "@/lib/db";
 import { HomeTab } from "@/pages/home-tab";
 import { QuizTab } from "@/pages/quiz-tab";
 import { SettingsTab } from "@/pages/settings-tab";
 
 export function Notebook() {
-  // State management
   const [modalOpen, setModalOpen] = useState(false);
   const [quizOpen, setQuizOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
   const [editingData, setEditingData] = useState<
     Partial<WordRecord> | undefined
   >();
-  const [quizWord, setQuizWord] = useState<WordRecord | null>(null);
+  const [quizWord] = useState<WordRecord | null>(null);
   const [activeTab, setActiveTab] = useState("home");
-  const [currentPage, setCurrentPage] = useState(1); // Always reset to 1 on refresh
 
   // Hooks
   const { data: words = [], isLoading: wordsLoading } = useWords();
-  const { data: settings, isLoading: settingsLoading } = useSettings();
-  const addWordMutation = useAddWord();
-  const updateWordMutation = useUpdateWord();
-  const deleteWordMutation = useDeleteWord();
-  const updateSettingsMutation = useUpdateSettings();
+  const { isLoading: settingsLoading } = useSettings();
 
-  // Computed values
-  const isLoading = wordsLoading || settingsLoading;
-  const perPage = settings?.perPage || 10;
-
-  // Create state-like object for compatibility with existing tabs
-  const state = useMemo(
-    () => ({
-      items: words,
-      page: currentPage,
-      settings: {
-        perPage: settings?.perPage ?? 10,
-        colorLeft: "#f6f7fb", // hardcoded default
-        colorRight: "#eefaf1", // hardcoded default
-      },
-      hideMeanings: true, // hardcoded default
-    }),
-    [words, currentPage, settings]
-  );
-
-  // Update function for compatibility
-  const update = (updater: (s: typeof state) => typeof state) => {
-    const newState = updater(state);
-
-    // Update page if changed
-    if (newState.page !== currentPage) {
-      setCurrentPage(newState.page);
-    }
-
-    // Update settings if changed
-    if (settings && newState.settings.perPage !== settings.perPage) {
-      updateSettingsMutation.mutate({
-        id: settings.id,
-        perPage: newState.settings.perPage,
-      });
-    }
-  };
-
-  if (isLoading) {
+  if (wordsLoading || settingsLoading) {
     return <div className="p-6">Loading…</div>;
   }
 
   const handleAddWord = () => {
     setModalMode("add");
     setEditingData(undefined);
-    setEditingIndex(null);
     setModalOpen(true);
   };
 
   const handleEditWord = (globalIdx: number) => {
     setModalMode("edit");
     setEditingData(words[globalIdx]);
-    setEditingIndex(globalIdx);
     setModalOpen(true);
-  };
-
-  const handleSaveWord = async (wordData: Partial<WordRecord>) => {
-    if (modalMode === "add") {
-      await addWordMutation.mutateAsync({
-        term: wordData.term || "",
-        meaning: wordData.meaning || "",
-        learned: false,
-        color: wordData.color || "default",
-      });
-      // Navigate to last page to see the new word
-      const newPageCount = Math.max(1, Math.ceil((words.length + 1) / perPage));
-      setCurrentPage(newPageCount);
-    } else if (modalMode === "edit" && editingIndex !== null) {
-      const editingWord = words[editingIndex];
-      if (editingWord?.id) {
-        await updateWordMutation.mutateAsync({
-          id: editingWord.id,
-          updates: wordData,
-        });
-      }
-    }
-    setModalOpen(false);
-  };
-
-  const handleDeleteWord = async () => {
-    if (modalMode === "edit" && editingIndex !== null) {
-      const editingWord = words[editingIndex];
-      if (editingWord?.id) {
-        await deleteWordMutation.mutateAsync(editingWord.id);
-      }
-      setModalOpen(false);
-    }
   };
 
   return (
@@ -137,11 +54,7 @@ export function Notebook() {
 
         {/* Quiz Tab */}
         <TabsContent className="mt-0" value="quiz">
-          <QuizTab
-            onSetActiveTab={setActiveTab}
-            state={state}
-            update={update}
-          />
+          <QuizTab onSetActiveTab={setActiveTab} />
         </TabsContent>
 
         {/* Settings Tab */}
@@ -178,9 +91,7 @@ export function Notebook() {
       <WordModal
         initialData={editingData}
         mode={modalMode}
-        onDelete={modalMode === "edit" ? handleDeleteWord : undefined}
         onOpenChange={setModalOpen}
-        onSave={handleSaveWord}
         open={modalOpen}
       />
 
