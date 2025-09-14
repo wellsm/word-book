@@ -57,6 +57,7 @@ npm run dev
 - **Styling**: Tailwind CSS, shadcn/ui
 - **Forms**: React Hook Form with Zod validation
 - **State**: React Query for data management
+- **Database**: Dexie for IndexedDB
 - **Build**: Vite
 - **Linting**: Biome
 
