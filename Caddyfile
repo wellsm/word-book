@@ -1,50 +1,8 @@
-{   # global options
-    admin off # there's no need for the admin api in railway's environment
-    persist_config off # storage isn't persistent anyway
-    auto_https off # railway handles https for us, this would cause issues if left enabled
-    log { # runtime logs
-        format console # set runtime log format to console mode 
-    }
-    servers { # server options
-        trusted_proxies static private_ranges # trust railway's proxy
-        # Enable HTTP/3 support for modern browsers
-        protocols h1 h2 h3
-    }
-    # Enable better security headers globally
-    header /* {
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
-        X-XSS-Protection "1; mode=block"
-        Referrer-Policy "strict-origin-when-cross-origin"
-    }
-}
-
-:{$PORT} { # site block, listens on the $PORT environment variable, automatically assigned by railway
-    log { # access logs
-        format console # set access log format to console mode
-    }
-
-    # health check for railway
-    respond /health 200
-
-    # serve from the 'dist' folder (Vite builds into the 'dist' folder)
-    root * dist
-
-    # enable gzipping and brotli compression for better performance
-    encode gzip
-
-    # serve files from 'dist'
-    file_server {
-        # Enable precompressed file serving if available
-        precompressed gzip
-    }
-
-    # if path doesn't exist, redirect it to 'index.html' for client side routing
-    try_files {path} /index.html
-
-    # Set cache headers for static assets
-    @static path *.js *.css *.woff *.woff2 *.ttf *.png *.jpg *.jpeg *.gif *.webp *.svg *.ico
-    header @static {
-        Cache-Control "public, max-age=31536000, immutable"
-    }
+:{$PORT} {
+	encode zstd gzip
+	root * /srv
+	header /* Cache-Control "public, max-age=31536000, immutable"
+	header /index.html Cache-Control "no-cache"
+	try_files {path} /index.html
+	file_server
 }

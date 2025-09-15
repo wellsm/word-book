@@ -1,123 +1,115 @@
-# 📚 Word Book
+# Word Book
 
-A modern, interactive vocabulary learning application built with React and TypeScript. Perfect for language learners who want to build and test their vocabulary in an engaging way.
+A modern vocabulary learning application built with React, TypeScript, and Vite.
 
-## ✨ Features
+## Features
 
-### 🎯 **Core Functionality**
-- **Add/Edit Words**: Create vocabulary entries with terms and meanings
-- **Color Coding**: Organize words with 8 different color categories
-- **Random Quiz**: Test your knowledge with randomized word challenges
-- **Hide/Show Toggle**: Practice recall by hiding meanings globally
-- **Pagination**: Navigate through your vocabulary collection
-- **Responsive Design**: Works seamlessly on desktop and mobile
+- **Interactive Word Management**: Add, edit, and manage your vocabulary
+- **Two Layout Options**: List view and Two-Column view for different learning styles
+- **Quiz Mode**: Test your knowledge with randomized quizzes
+- **Local Storage**: All data stored locally in your browser
+- **Modern UI**: Clean, responsive design with dark/light theme support
+- **Progressive Web App**: Can be installed on mobile devices
 
-### 🎨 **User Interface**
-- **Modern Card Design**: Clean, visual word cards with smooth animations
-- **Modal-Based Editing**: Intuitive editing experience with form validation
-- **Bottom Navigation**: Fixed bottom bar with all essential controls
-- **Color-Coded Organization**: Visual badges for word categorization
-- **Dark/Light Theme Support**: Automatic theme adaptation
+## Tech Stack
 
-### 🧠 **Learning Tools**
-- **Quiz Mode**: Random word selection with reveal functionality
-- **Visual Feedback**: Color-coded progress and status indicators
-- **Click-to-Reveal**: Interactive meaning discovery
-- **Mobile-Optimized**: Touch-friendly interface for mobile learning
+- **Frontend**: React 18, TypeScript, Vite
+- **UI Components**: shadcn/ui, Tailwind CSS
+- **State Management**: React hooks with local state
+- **Database**: Dexie.js (IndexedDB wrapper)
+- **Web Server**: Caddy (for production deployment)
 
-## 🚀 Getting Started
+## Development
 
 ### Prerequisites
+
 - Node.js 18+ 
 - npm or yarn
 
-### Installation
+### Local Development
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+4. Open http://localhost:5173
+
+### Build
+
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd word-book
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+npm run build
 ```
 
-### Usage
-1. **Add Words**: Click "Add Word" to create vocabulary entries
-2. **Organize**: Use color categories to group related words
-3. **Study**: Use "Hide page" to test your recall
-4. **Quiz**: Click "Random Quiz" for interactive testing
-5. **Settings**: Customize words per page and theme colors
+## Docker Deployment
 
-## 🛠️ Tech Stack
+### Using Docker Compose (Recommended for local testing)
 
-- **Frontend**: React 19, TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui
-- **Forms**: React Hook Form with Zod validation
-- **State**: React Query for data management
-- **Database**: Dexie for IndexedDB
-- **Build**: Vite
-- **Linting**: Biome
+1. Build and run with docker-compose:
+   ```bash
+   docker-compose up --build
+   ```
+2. Access the application at http://localhost:8080
 
-## 🔮 Future Features
+### Manual Docker Build
 
-### 📦 **Data Management**
-- **Import and Export**: Backup and share vocabulary collections
-- **Persistent Points**: Gamification with experience points and achievements
-- **Cloud Sync**: Synchronize across multiple devices
+1. Build the Docker image:
+   ```bash
+   docker build -t word-book .
+   ```
 
-### 🎓 **Enhanced Learning**
-- **Spaced Repetition**: Intelligent review scheduling based on memory science
-- **Difficulty Levels**: Adaptive learning with word difficulty tracking
-- **Study Streaks**: Daily learning goals and streak tracking
-- **Progress Analytics**: Detailed statistics and learning insights
-- **Audio Pronunciation**: Text-to-speech for proper pronunciation
-- **Example Sentences**: Contextual usage examples for each word
+2. Run the container:
+   ```bash
+   docker run -p 8080:8080 -e PORT=8080 word-book
+   ```
 
-### 🏆 **Gamification**
-- **Achievement System**: Unlock badges for learning milestones
-- **Daily Challenges**: Special quizzes and learning tasks
-- **Leaderboards**: Compare progress with friends (optional)
-- **Learning Paths**: Structured vocabulary courses (A1-C2)
-- **Word Mastery Levels**: Track confidence for each word
+### Production Deployment
 
-### 🌐 **Social & Sharing**
-- **Deck Sharing**: Share vocabulary collections with others
-- **Collaborative Learning**: Study groups and shared decks
-- **Public Deck Library**: Browse community-created vocabulary sets
-- **Study Buddy System**: Partner matching for accountability
+The application is configured for deployment on Railway, Render, or similar platforms that support Docker deployments.
 
-### 🔧 **Advanced Features**
-- **Smart Categories**: AI-powered automatic word categorization
-- **Image Association**: Add visual cues to vocabulary entries
-- **Multi-Language Support**: Learn multiple languages simultaneously
-- **Voice Input**: Add words using speech recognition
-- **Smart Notifications**: Personalized study reminders
-- **Learning Habits Analysis**: AI insights into study patterns
+#### Environment Variables
 
-### 🎯 **Specialized Learning Modes**
-- **Typing Practice**: Improve spelling through typing exercises
-- **Multiple Choice**: Traditional quiz format options
-- **Matching Games**: Connect words with definitions
-- **Fill-in-the-Blanks**: Contextual usage practice
-- **Word Association**: Build connections between related terms
+- `PORT`: The port the application will listen on (automatically set by most platforms)
 
-## 🤝 Contributing
+#### Health Check
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+The application includes a health check endpoint at `/health` that returns a 200 status.
 
-## 📄 License
+## Usage
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Adding Words
 
-## 🙏 Acknowledgments
+1. Click the "+" button to add a new word
+2. Enter the term and its meaning
+3. Choose a color for visual organization
+4. Save the word
 
-- Built with [shadcn/ui](https://ui.shadcn.com/) for beautiful components
-- Icons by [Lucide React](https://lucide.dev/)
-- Powered by [Vite](https://vitejs.dev/) and [React](https://reactjs.org/)
+### Quiz Mode
 
----
+1. Navigate to the Quiz tab
+2. Click "Start Random Quiz" 
+3. Try to recall the meaning before revealing it
+4. Use Previous/Next to navigate through words
+5. Click "Stop" to return to the start screen
 
-**Happy Learning!** 🎉 Start building your vocabulary today!
+### Settings
+
+- **Words per page**: Control how many words display at once
+- **Layout**: Choose between List view or Two-Column view
+- **Data Management**: Export/Import your word collection (hidden by default)
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License.

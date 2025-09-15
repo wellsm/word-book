@@ -54,7 +54,7 @@ export function Notebook() {
 
         {/* Quiz Tab */}
         <TabsContent className="mt-0" value="quiz">
-          <QuizTab onSetActiveTab={setActiveTab} />
+          <QuizTab />
         </TabsContent>
 
         {/* Settings Tab */}
