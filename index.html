@@ -1,13 +1,43 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/manifest-icon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="description" content="A modern vocabulary learning application with quiz functionality" />
+
+  <!-- Apple PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Word Book" />
+  <link rel="apple-touch-icon" href="/manifest-icon.svg" />
+
+  <!-- Microsoft PWA Meta Tags -->
+  <meta name="msapplication-TileColor" content="#2563eb" />
+  <meta name="msapplication-config" content="/browserconfig.xml" />
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Word Book - Vocabulary Learning" />
+  <meta property="og:description" content="A modern vocabulary learning application with quiz functionality" />
+  <meta property="og:image" content="/manifest-icon.svg" />
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Word Book - Vocabulary Learning" />
+  <meta name="twitter:description" content="A modern vocabulary learning application with quiz functionality" />
+  <meta name="twitter:image" content="/manifest-icon.svg" />
+
+  <title>Word Book - Vocabulary Learning</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

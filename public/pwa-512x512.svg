@@ -1,0 +1,36 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#2563eb" rx="64"/>
+  
+  <!-- Book shape -->
+  <g transform="translate(96, 96)">
+    <!-- Book cover -->
+    <rect x="0" y="0" width="320" height="280" fill="#ffffff" rx="16"/>
+    <rect x="0" y="0" width="320" height="280" fill="none" stroke="#e5e7eb" stroke-width="2" rx="16"/>
+    
+    <!-- Book spine -->
+    <rect x="0" y="0" width="20" height="280" fill="#f3f4f6" rx="16 0 0 16"/>
+    
+    <!-- Text lines representing words -->
+    <rect x="40" y="40" width="240" height="12" fill="#6b7280" rx="6"/>
+    <rect x="40" y="70" width="200" height="12" fill="#6b7280" rx="6"/>
+    <rect x="40" y="100" width="260" height="12" fill="#6b7280" rx="6"/>
+    <rect x="40" y="130" width="180" height="12" fill="#6b7280" rx="6"/>
+    
+    <!-- Highlighted word (representing vocabulary) -->
+    <rect x="40" y="180" width="120" height="16" fill="#2563eb" rx="8"/>
+    
+    <!-- More text lines -->
+    <rect x="170" y="180" width="80" height="12" fill="#6b7280" rx="6"/>
+    <rect x="40" y="210" width="240" height="12" fill="#6b7280" rx="6"/>
+    <rect x="40" y="240" width="160" height="12" fill="#6b7280" rx="6"/>
+    
+    <!-- Book pages edge -->
+    <rect x="315" y="8" width="8" height="264" fill="#f9fafb" rx="4"/>
+    <rect x="310" y="12" width="8" height="256" fill="#f3f4f6" rx="4"/>
+  </g>
+  
+  <!-- Small icon in corner to indicate app -->
+  <circle cx="416" cy="96" r="40" fill="#ffffff" opacity="0.9"/>
+  <text x="416" y="106" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#2563eb">W</text>
+</svg> 
