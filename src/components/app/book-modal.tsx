@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAddBook, useDeleteBook, useUpdateBook } from "@/hooks/use-books";
 import type { BookRecord } from "@/schemas/book";
 import { LANGUAGE_EN, LanguageOptions } from "@/schemas/book";
@@ -69,7 +68,7 @@ export function BookModal({ open, onOpenChange, initialData, mode }: Props) {
       name: initialData?.name || "",
       color: initialData?.color || "default",
       type: initialData?.type || LANGUAGE_EN,
-      value: initialData?.value || LANGUAGE_EN,
+      value: LANGUAGE_EN,
     },
   });
 
@@ -178,29 +177,6 @@ export function BookModal({ open, onOpenChange, initialData, mode }: Props) {
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className="space-y-3">
-            <Label>Language</Label>
-            <RadioGroup
-              onValueChange={(value) => {
-                setValue("type", value as typeof LANGUAGE_EN);
-                setValue("value", value as typeof LANGUAGE_EN);
-              }}
-              value={watch("type")}
-            >
-              {LanguageOptions.map((option) => (
-                <div className="flex items-center space-x-2" key={option}>
-                  <RadioGroupItem id={`language-${option}`} value={option} />
-                  <Label
-                    className="font-normal text-sm"
-                    htmlFor={`language-${option}`}
-                  >
-                    English ({option})
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
           </div>
 
           <DialogFooter className="gap-2">

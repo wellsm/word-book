@@ -1,5 +1,4 @@
 import { Edit } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, getColorClass } from "@/lib/utils";
@@ -25,11 +24,11 @@ export function BookCard({ book, onEdit, onSelect }: BookCardProps) {
             <CardTitle className="mb-2 font-semibold text-lg">
               {book.name}
             </CardTitle>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <Badge className={getColorClass(book.color)}>
                 {book.type.toUpperCase()}
               </Badge>
-            </div>
+            </div> */}
           </button>
           <Button
             className="transition-opacity group-hover:opacity-100"
