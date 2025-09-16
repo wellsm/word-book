@@ -1,8 +1,5 @@
-import type { WordRecord } from "@/lib/db";
+import type { WordRecord } from "@/schemas/word";
 
-type PartialWordRecord = Pick<
-  WordRecord,
-  "term" | "meaning" | "learned" | "color"
->;
+type PartialWordRecord = Pick<WordRecord, "term" | "meaning" | "learned">;
 
 export const DEFAULT_WORDS: PartialWordRecord[] = [];

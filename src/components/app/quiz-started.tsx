@@ -6,9 +6,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import type { WordRecord } from "@/lib/db";
-import { getColorClass } from "@/lib/utils";
-import { Badge } from "../ui/badge";
+import type { WordRecord } from "@/schemas/word";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 
@@ -108,11 +106,9 @@ export const QuizStarted = ({ words, stopQuiz }: QuizStartedProps) => {
         <CardContent className="space-y-6 p-8">
           {/* Word Display */}
           <div className="text-center">
-            <Badge
-              className={`text-center font-black text-2xl text-foreground lowercase leading-tight tracking-wide drop-shadow-sm ${getColorClass(currentWord.color)} rounded-2xl px-6 py-2`}
-            >
+            <div className="text-center font-black text-2xl text-foreground lowercase leading-tight tracking-wide drop-shadow-sm">
               {currentWord.term}
-            </Badge>
+            </div>
           </div>
 
           {/* Meaning Section */}

@@ -1,5 +1,5 @@
 import { Row } from "@/components/app/row";
-import type { WordRecord } from "@/lib/db";
+import type { WordRecord } from "@/schemas/word";
 
 type WordsListProps = {
   words: WordRecord[];

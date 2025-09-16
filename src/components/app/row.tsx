@@ -1,8 +1,6 @@
 import { Edit2, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getColorClass } from "@/lib/utils";
 import type { WordRecord } from "@/schemas/word";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 
@@ -73,11 +71,9 @@ export function Row({ item, onEdit, hideMeanings, layout = "list" }: Props) {
       <CardContent className="h-full p-0">
         <div className="flex h-full flex-col items-center">
           <div className="flex flex-1 items-center justify-center">
-            <Badge
-              className={`text-center font-black text-2xl text-foreground lowercase leading-tight tracking-wide drop-shadow-sm ${getColorClass(item.color)} rounded-2xl px-4`}
-            >
+            <div className="text-center font-black text-2xl text-foreground lowercase leading-tight tracking-wide drop-shadow-sm">
               {item.term}
-            </Badge>
+            </div>
             {!hidden && (
               <Button
                 className="absolute top-2 right-2"

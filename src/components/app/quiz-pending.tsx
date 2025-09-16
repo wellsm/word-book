@@ -1,4 +1,4 @@
-import type { WordRecord } from "@/lib/db";
+import type { WordRecord } from "@/schemas/word";
 import { Button } from "../ui/button";
 
 type QuizPendingProps = {

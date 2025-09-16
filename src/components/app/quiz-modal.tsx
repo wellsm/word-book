@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { WordRecord } from "@/lib/db";
+import type { WordRecord } from "@/schemas/word";
 
 type WordData = WordRecord;
 
