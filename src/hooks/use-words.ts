@@ -1,10 +1,15 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import type { WordRecord } from "@/lib/db";
 import { db } from "@/lib/db";
 import type { SettingsRecord } from "@/schemas/settings";
+import type { WordRecord } from "@/schemas/word";
 
-export function useWords() {
-  const words = useLiveQuery(() => db.words.orderBy("createdAt").toArray(), []);
+export function useWords(bookId?: number) {
+  const words = useLiveQuery(() => {
+    if (bookId) {
+      return db.words.where("bookId").equals(bookId).reverse().toArray();
+    }
+    return db.words.orderBy("createdAt").reverse().toArray();
+  }, [bookId]);
 
   return {
     data: words ?? [],
@@ -32,9 +37,9 @@ export function useUpdateWord() {
     updates,
   }: {
     id: number;
-    updates: Partial<WordRecord>;
+    updates: Partial<Omit<WordRecord, "id">>;
   }) => {
-    return await db.words.update(id, updates);
+    await db.words.update(id, updates);
   };
 
   return {
@@ -46,7 +51,7 @@ export function useUpdateWord() {
 
 export function useDeleteWord() {
   const deleteWord = async (id: number) => {
-    return await db.words.delete(id);
+    await db.words.delete(id);
   };
 
   return {
@@ -57,20 +62,17 @@ export function useDeleteWord() {
 }
 
 export function useExportData() {
-  const exportData = async () => {
-    const words = await db.words.toArray();
-    const settings = await db.settings.limit(1).first();
+  const exportData = async (): Promise<{
+    words: WordRecord[];
+    settings: SettingsRecord[];
+  }> => {
+    const wordsData = await db.words.toArray();
+    const settingsData = await db.settings.toArray();
 
-    // Provide default settings if none exist
-    const defaultSettings = settings || {
-      perPage: 10,
-      colorLeft: "#f6f7fb",
-      colorRight: "#eefaf1",
-      hideMeanings: true,
-      updatedAt: new Date(),
+    return {
+      words: wordsData,
+      settings: settingsData,
     };
-
-    return { words, settings: defaultSettings };
   };
 
   return {
@@ -82,25 +84,33 @@ export function useExportData() {
 
 export function useImportData() {
   const importData = async (data: {
-    words: WordRecord[];
-    settings: SettingsRecord;
+    words?: WordRecord[];
+    settings?: SettingsRecord[];
   }) => {
-    await db.transaction("rw", db.words, db.settings, async () => {
-      // Clear existing data
+    if (data.words && data.words.length > 0) {
+      // Clear existing words
       await db.words.clear();
+
+      const wordsToAdd = data.words.map((word) => ({
+        ...word,
+        createdAt: new Date(word.createdAt),
+        updatedAt: new Date(word.updatedAt),
+      }));
+
+      await db.words.bulkAdd(wordsToAdd);
+    }
+
+    if (data.settings && data.settings.length > 0) {
+      // Clear existing settings
       await db.settings.clear();
 
-      // Import settings
-      await db.settings.add(data.settings);
+      const settingsToAdd = data.settings.map((setting) => ({
+        ...setting,
+        updatedAt: new Date(setting.updatedAt),
+      }));
 
-      // Import words (remove ids to let auto-increment work)
-      const wordsToImport = data.words.map((word) => {
-        const { id: _, ...wordData } = word;
-        return wordData;
-      });
-
-      await db.words.bulkAdd(wordsToImport);
-    });
+      await db.settings.bulkAdd(settingsToAdd);
+    }
   };
 
   return {

@@ -1,40 +1,20 @@
 import Dexie, { type EntityTable } from "dexie";
+import type { BookRecord } from "@/schemas/book";
 import { DEFAULT_SETTINGS, type SettingsRecord } from "@/schemas/settings";
+import type { WordRecord } from "@/schemas/word";
 import { DEFAULT_WORDS } from "../seeders/words";
-
-export type WordRecord = {
-  id?: number;
-  term: string;
-  meaning: string;
-  learned: boolean;
-  color: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
 
 const db = new Dexie("WordBookDB") as Dexie & {
   words: EntityTable<WordRecord, "id">;
+  books: EntityTable<BookRecord, "id">;
   settings: EntityTable<SettingsRecord, "id">;
 };
 
 db.version(1).stores({
-  words: "++id, term, createdAt",
+  words: "++id, term, bookId, createdAt",
+  books: "++id, name, createdAt",
   settings: "++id",
 });
-
-db.version(2)
-  .stores({
-    words: "++id, term, createdAt",
-    settings: "++id",
-  })
-  .upgrade((tx) => {
-    return tx
-      .table("settings")
-      .toCollection()
-      .modify((settings) => {
-        settings.layout = DEFAULT_SETTINGS.layout.toString();
-      });
-  });
 
 db.on("populate", async () => {
   await db.settings.bulkAdd([
@@ -45,8 +25,28 @@ db.on("populate", async () => {
     },
   ]);
 
+  if (DEFAULT_WORDS.length === 0) {
+    return;
+  }
+
+  const bookId = await db.books.add({
+    name: "My First Book",
+    color: "blue",
+    type: "en",
+    value: "en",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  if (!bookId) {
+    return;
+  }
+
   const words = DEFAULT_WORDS.map((word) => ({
-    ...word,
+    term: word.term,
+    meaning: word.meaning,
+    learned: word.learned,
+    bookId,
     createdAt: new Date(),
     updatedAt: new Date(),
   }));
@@ -62,6 +62,15 @@ db.words.hook("creating", (_, obj) => {
 
 db.words.hook("updating", (modifications) => {
   (modifications as Partial<WordRecord>).updatedAt = new Date();
+});
+
+db.books.hook("creating", (_, obj) => {
+  (obj as BookRecord).createdAt = new Date();
+  (obj as BookRecord).updatedAt = new Date();
+});
+
+db.books.hook("updating", (modifications) => {
+  (modifications as Partial<BookRecord>).updatedAt = new Date();
 });
 
 db.settings.hook("creating", (_, obj) => {

@@ -27,6 +27,23 @@ export function useUpdateSettings() {
   };
 }
 
+export function useUpdateSelectedBook() {
+  const updateSelectedBook = async (selectedBookId?: number) => {
+    const currentSettings = await db.settings.limit(1).first();
+    const id = currentSettings?.id;
+
+    if (id) {
+      await db.settings.update(id, { selectedBookId });
+    }
+  };
+
+  return {
+    mutate: updateSelectedBook,
+    mutateAsync: updateSelectedBook,
+    isPending: false,
+  };
+}
+
 export function useDeleteDatabase() {
   const deleteDatabase = async () => {
     await db.delete();

@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-const UPDATE_CHECK_INTERVAL_MS = 60_000 * 60; // 1 hour
+const SECONDS = 1000;
+const MINUTES = SECONDS * 60;
+const UPDATE_CHECK_INTERVAL_MS = MINUTES * 60; // 1 hour
 
 export function PWAUpdatePrompt() {
   const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
@@ -19,7 +21,6 @@ export function PWAUpdatePrompt() {
       if (reg) {
         setRegistration(reg);
 
-        // Listen for updates
         reg.addEventListener("updatefound", () => {
           const newWorker = reg.installing;
           if (newWorker) {
@@ -28,18 +29,14 @@ export function PWAUpdatePrompt() {
                 newWorker.state === "installed" &&
                 navigator.serviceWorker.controller
               ) {
-                // New service worker is installed and ready
                 setShowUpdatePrompt(true);
               }
             });
           }
         });
 
-        // Check for updates periodically
         const intervalId = setInterval(() => {
-          reg.update().catch(() => {
-            // Ignore update errors
-          });
+          reg.update();
         }, UPDATE_CHECK_INTERVAL_MS);
 
         return () => {
@@ -71,7 +68,7 @@ export function PWAUpdatePrompt() {
   }
 
   return (
-    <div className="fixed top-4 right-4 left-4 z-50 md:right-4 md:left-auto md:w-80">
+    <div className="fixed right-4 bottom-20 left-4 z-50 md:right-4 md:left-auto md:w-80">
       <Card className="border-orange-200 bg-orange-50 shadow-lg dark:border-orange-800 dark:bg-orange-950">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">

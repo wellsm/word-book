@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,39 +15,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddWord, useDeleteWord, useUpdateWord } from "@/hooks/use-words";
-import type { WordRecord } from "@/lib/db";
+import { searchWordMeaning } from "@/lib/dictionary";
+import type { WordRecord } from "@/schemas/word";
 
 const WordFormSchema = z.object({
   term: z.string().min(1, "Word is required"),
-  meaning: z.string().min(1, "Meaning is required"),
-  color: z.string(),
+  meaning: z.string().optional(),
+  bookId: z.number().min(1, "Book is required"),
 });
 
 type WordFormData = z.infer<typeof WordFormSchema>;
-
-const colorOptions = [
-  {
-    value: "default",
-    label: "Default",
-    class: "bg-secondary text-secondary-foreground",
-  },
-  { value: "blue", label: "Blue", class: "bg-blue-500 text-white" },
-  { value: "green", label: "Green", class: "bg-green-500 text-white" },
-  { value: "yellow", label: "Yellow", class: "bg-yellow-500 text-black" },
-  { value: "red", label: "Red", class: "bg-red-500 text-white" },
-  { value: "purple", label: "Purple", class: "bg-purple-500 text-white" },
-  { value: "orange", label: "Orange", class: "bg-orange-500 text-white" },
-  { value: "pink", label: "Pink", class: "bg-pink-500 text-white" },
-];
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialData?: Partial<WordRecord>;
   mode: "add" | "edit";
+  bookId: number;
 };
 
-export function WordModal({ open, onOpenChange, initialData, mode }: Props) {
+export function WordModal({
+  open,
+  onOpenChange,
+  initialData,
+  mode,
+  bookId,
+}: Props) {
+  const [isSearchingMeaning, setIsSearchingMeaning] = useState(false);
+
   // Use hooks directly in the modal
   const addWordMutation = useAddWord();
   const updateWordMutation = useUpdateWord();
@@ -59,45 +54,66 @@ export function WordModal({ open, onOpenChange, initialData, mode }: Props) {
     reset,
     watch,
     setValue,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<WordFormData>({
     resolver: zodResolver(WordFormSchema),
     mode: "onChange",
     defaultValues: {
       term: initialData?.term || "",
       meaning: initialData?.meaning || "",
-      color: initialData?.color || "default",
+      bookId: initialData?.bookId || bookId,
     },
   });
 
-  const selectedColor = watch("color");
+  const currentTerm = watch("term");
 
   useEffect(() => {
     if (open) {
       reset({
         term: initialData?.term || "",
         meaning: initialData?.meaning || "",
-        color: initialData?.color || "default",
+        bookId: initialData?.bookId || bookId,
       });
+      setIsSearchingMeaning(false);
     }
-  }, [open, initialData, reset]);
+  }, [open, initialData, reset, bookId]);
+
+  const handleSearchMeaning = async () => {
+    if (!currentTerm?.trim()) {
+      toast.error("Please enter a word first");
+      return;
+    }
+
+    setIsSearchingMeaning(true);
+    try {
+      const meaning = await searchWordMeaning(currentTerm.trim());
+      setValue("meaning", meaning);
+      toast.success("Definition found!");
+    } catch (error) {
+      toast.error(
+        `Failed to find definition: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
+    } finally {
+      setIsSearchingMeaning(false);
+    }
+  };
 
   const onSubmit = async (data: WordFormData) => {
     try {
       if (mode === "add") {
         await addWordMutation.mutateAsync({
           term: data.term,
-          meaning: data.meaning,
+          meaning: data.meaning || "",
           learned: false,
-          color: data.color,
+          bookId: data.bookId,
         });
       } else if (mode === "edit" && initialData?.id) {
         await updateWordMutation.mutateAsync({
           id: initialData.id,
           updates: {
             term: data.term,
-            meaning: data.meaning,
-            color: data.color,
+            meaning: data.meaning || "",
+            bookId: data.bookId,
           },
         });
       }
@@ -117,6 +133,25 @@ export function WordModal({ open, onOpenChange, initialData, mode }: Props) {
         // Error handled by mutation hooks
       }
     }
+  };
+
+  const getSubmitButtonText = () => {
+    if (addWordMutation.isPending || updateWordMutation.isPending) {
+      return "Saving...";
+    }
+    return mode === "add" ? "Add Word" : "Save Changes";
+  };
+
+  const getSearchButtonContent = () => {
+    if (isSearchingMeaning) {
+      return (
+        <>
+          <span className="mr-2 animate-spin">⏳</span>
+          Searching...
+        </>
+      );
+    }
+    return "📖 Search Definition";
   };
 
   return (
@@ -146,11 +181,24 @@ export function WordModal({ open, onOpenChange, initialData, mode }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="meaning">Meaning</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="meaning">Meaning</Label>
+              {mode === "add" && (
+                <Button
+                  disabled={isSearchingMeaning || !currentTerm?.trim()}
+                  onClick={handleSearchMeaning}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  {getSearchButtonContent()}
+                </Button>
+              )}
+            </div>
             <Textarea
               className="resize-none"
               id="meaning"
-              placeholder="Enter meaning"
+              placeholder="Enter meaning or use dictionary search"
               rows={5}
               {...register("meaning")}
             />
@@ -159,28 +207,6 @@ export function WordModal({ open, onOpenChange, initialData, mode }: Props) {
                 {errors.meaning.message}
               </p>
             )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Color</Label>
-            <div className="grid grid-cols-4 gap-2">
-              {colorOptions.map((color) => (
-                <button
-                  className={`rounded-md border-2 p-2 transition-all ${
-                    selectedColor === color.value
-                      ? "border-primary ring-2 ring-primary/20"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  key={color.value}
-                  onClick={() => setValue("color", color.value)}
-                  type="button"
-                >
-                  <Badge className={`${color.class} w-full justify-center`}>
-                    {color.label}
-                  </Badge>
-                </button>
-              ))}
-            </div>
           </div>
 
           <DialogFooter className="gap-2">
@@ -205,19 +231,14 @@ export function WordModal({ open, onOpenChange, initialData, mode }: Props) {
             </Button>
             <Button
               disabled={
-                !isValid ||
                 addWordMutation.isPending ||
-                updateWordMutation.isPending
+                updateWordMutation.isPending ||
+                !currentTerm?.trim()
               }
               size="sm"
               type="submit"
             >
-              {(() => {
-                if (addWordMutation.isPending || updateWordMutation.isPending) {
-                  return "Saving...";
-                }
-                return mode === "add" ? "Add Word" : "Save Changes";
-              })()}
+              {getSubmitButtonText()}
             </Button>
           </DialogFooter>
         </form>

@@ -1,6 +1,7 @@
 import { Download, Save, Trash2, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Loading } from "@/components/app/loading";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Input } from "@/components/ui/input";
@@ -33,14 +34,12 @@ export function SettingsTab() {
   const exportData = useExportData();
   const importData = useImportData();
 
-  // Initialize local settings when settings are loaded
   useEffect(() => {
     if (settings) {
       setLocalSettings(settings);
     }
   }, [settings]);
 
-  // Initialize default settings if they don't exist
   useEffect(() => {
     if (!(isLoading || settings)) {
       const defaultSettings: Omit<SettingsRecord, "id" | "updatedAt"> = {
@@ -52,11 +51,7 @@ export function SettingsTab() {
   }, [isLoading, settings, updateSettings]);
 
   if (isLoading || !settings || !localSettings) {
-    return (
-      <div className="space-y-4 p-8">
-        <div>Loading settings...</div>
-      </div>
-    );
+    return <Loading />;
   }
 
   const handlePerPageChange = (value: number) => {
@@ -87,7 +82,6 @@ export function SettingsTab() {
   const handleExport = async () => {
     try {
       const data = await exportData.mutateAsync();
-
       download("wordbook.json", JSON.stringify(data, null, 2));
     } catch {
       toast("Export failed. Please try again.");
@@ -109,7 +103,6 @@ export function SettingsTab() {
     try {
       await deleteDatabase.mutateAsync();
       toast("Database deleted successfully. Please refresh the page.");
-
       window.location.reload();
     } catch {
       toast("Failed to delete database. Please try again.");
@@ -161,7 +154,6 @@ export function SettingsTab() {
           </RadioGroup>
         </div>
 
-        {/* Save Button */}
         <div className="flex justify-start">
           <Button
             className="flex items-center"

@@ -1,7 +1,7 @@
 import { Edit2, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { WordRecord } from "@/lib/db";
 import { getColorClass } from "@/lib/utils";
+import type { WordRecord } from "@/schemas/word";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
@@ -29,18 +29,10 @@ export function Row({ item, onEdit, hideMeanings, layout = "list" }: Props) {
     return (
       <Card className="relative cursor-pointer select-none overflow-hidden rounded-none border-0 p-0">
         <CardContent className={"h-full p-0"}>
-          <div className="grid h-full grid-cols-2 items-center bg-muted/10">
+          <div className="grid h-full min-h-16 grid-cols-2 items-center bg-muted/10">
             {/* Term Section - Left Side */}
-            <div className="flex h-full w-full flex-1 items-center justify-center space-x-4 border-border/20 border-r">
-              <Badge
-                className={`text-center font-black text-foreground text-xl lowercase leading-tight tracking-wide drop-shadow-sm ${getColorClass(item.color)} rounded-xl px-3`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-              >
-                {item.term}
-              </Badge>
+            <div className="flex h-full w-full flex-1 items-center justify-center space-x-4 border-border/20 border-r font-bold text-foreground text-xl">
+              {item.term}
             </div>
 
             {/* Meaning Section - Right Side */}
@@ -55,9 +47,11 @@ export function Row({ item, onEdit, hideMeanings, layout = "list" }: Props) {
               )}
 
               <p
-                className={`w-full text-wrap p-0 text-center font-medium text-base text-muted-foreground ${hidden ? "opacity-0" : "opacity-100"}`}
+                className={`w-full space-y-2 text-wrap p-0 text-left font-medium text-base text-muted-foreground ${hidden ? "opacity-0" : "opacity-100"}`}
               >
-                {item.meaning}
+                {item.meaning.split("\n\n").map((meaning, index) => (
+                  <p key={`${item.term}-${index}`}>{meaning}</p>
+                ))}
               </p>
             </Button>
           </div>

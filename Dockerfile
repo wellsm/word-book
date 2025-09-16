@@ -3,12 +3,12 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Instala dependências (aproveitando cache)
+# Install dependencies (using cache)
 COPY package.json package-lock.json .npmrc* ./ 
 
 RUN npm ci
 
-# Copia código e builda
+# Copy code and build
 COPY . .
 
 RUN npm run build
@@ -23,4 +23,4 @@ COPY --from=builder /app/dist /srv
 
 COPY ./Caddyfile /etc/caddy/Caddyfile
 
-# Caddy expõe 80 e 443 por padrão
+# Caddy exposes 80 and 443 by default
